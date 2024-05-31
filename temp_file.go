@@ -23,7 +23,7 @@ type TempFile struct {
 	tags      map[string]string
 
 	readonly  bool
-	count     uint   // How many items are currently saved in the file
+	count     int    // How many items are currently saved in the file
 	bytesSize uint64 // The size of the actual file that we are storing
 	offset    uint64 // The current offset in the file
 	indexes   map[ObjectID]*ObjectIndex
@@ -104,7 +104,7 @@ func (f *TempFile) Age() time.Duration {
 }
 
 // Count returns the number of items stored in this file
-func (f *TempFile) Count() uint {
+func (f *TempFile) Count() int {
 	return f.count
 }
 
