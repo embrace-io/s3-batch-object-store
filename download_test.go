@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	mocks3 "github.com/embrace-io/s3-batch-object-store/mock"
+	mocks3batchstore "github.com/embrace-io/s3-batch-object-store/mock"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 )
@@ -62,7 +62,7 @@ func TestClient_Fetch(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	s3Mock := mocks3.NewMockS3Client(ctrl)
+	s3Mock := mocks3batchstore.NewMockS3Client(ctrl)
 
 	c := client[string]{
 		s3Bucket: testBucketName,
@@ -140,7 +140,7 @@ func TestClient_FetchError(t *testing.T) {
 	ctx := context.Background()
 
 	ctrl := gomock.NewController(t)
-	s3Mock := mocks3.NewMockS3Client(ctrl)
+	s3Mock := mocks3batchstore.NewMockS3Client(ctrl)
 	s3Mock.EXPECT().GetObject(ctx, gomock.Any()).DoAndReturn(func(_ context.Context, input *s3.GetObjectInput, _ ...func(options *s3.Options)) (*s3.GetObjectOutput, error) {
 		return nil, errors.New("error connecting to s3")
 	}).Times(1)
