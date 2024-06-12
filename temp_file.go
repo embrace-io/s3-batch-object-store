@@ -16,7 +16,7 @@ const version string = "v1"
 // This way we avoid having all the bytes in memory.
 // This will also keep track of the indexes for each slice of bytes, in order to know where each of them are located
 // TempFile is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
-type TempFile struct {
+type TempFile[K comparable] struct {
 	fileName  string
 	file      *os.File
 	createdOn time.Time
@@ -26,10 +26,8 @@ type TempFile struct {
 	count     int    // How many items are currently saved in the file
 	bytesSize uint64 // The size of the actual file that we are storing
 	offset    uint64 // The current offset in the file
-	indexes   map[ObjectID]*ObjectIndex
+	indexes   map[K]ObjectIndex
 }
-
-type ObjectID string
 
 type ObjectIndex struct {
 	File   string `json:"file"`
@@ -37,9 +35,7 @@ type ObjectIndex struct {
 	Length uint64 `json:"length"`
 }
 
-// NewTempFile Creates a new file in a temp folder
-// tags can be used to store information about this file in S3, like retention days
-func NewTempFile(tags map[string]string) (*TempFile, error) {
+func (c *client[K]) NewTempFile(tags map[string]string) (*TempFile[K], error) {
 	fileName := ulid.Make().String()
 
 	file, err := os.CreateTemp(os.TempDir(), fileName)
@@ -47,12 +43,12 @@ func NewTempFile(tags map[string]string) (*TempFile, error) {
 		return nil, err
 	}
 
-	return &TempFile{
+	return &TempFile[K]{
 		fileName:  version + "/" + timeToFilePath(time.Now()) + "/" + fileName,
 		file:      file,
 		createdOn: time.Now(),
 		tags:      tags,
-		indexes:   map[ObjectID]*ObjectIndex{},
+		indexes:   map[K]ObjectIndex{},
 	}, nil
 }
 
@@ -60,7 +56,7 @@ func NewTempFile(tags map[string]string) (*TempFile, error) {
 // This will also store the associated ObjectIndex information for this slice of bytes,
 // telling where the object is located in this file (file, offset, length)
 // This method is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
-func (f *TempFile) Append(id ObjectID, bytes []byte) error {
+func (f *TempFile[K]) Append(id K, bytes []byte) error {
 	length := uint64(len(bytes))
 
 	if f.readonly {
@@ -78,7 +74,7 @@ func (f *TempFile) Append(id ObjectID, bytes []byte) error {
 	}
 
 	// Add index
-	f.indexes[id] = &ObjectIndex{
+	f.indexes[id] = ObjectIndex{
 		File:   f.fileName,
 		Offset: f.offset,
 		Length: length,
@@ -89,49 +85,49 @@ func (f *TempFile) Append(id ObjectID, bytes []byte) error {
 }
 
 // Name returns the fileName
-func (f *TempFile) Name() string {
+func (f *TempFile[K]) Name() string {
 	return f.fileName
 }
 
 // Tags returns the tags associated with this file
-func (f *TempFile) Tags() map[string]string {
+func (f *TempFile[K]) Tags() map[string]string {
 	return f.tags
 }
 
 // Age returns the duration since this file has been started
-func (f *TempFile) Age() time.Duration {
+func (f *TempFile[K]) Age() time.Duration {
 	return time.Since(f.createdOn)
 }
 
 // Count returns the number of items stored in this file
-func (f *TempFile) Count() int {
+func (f *TempFile[K]) Count() int {
 	return f.count
 }
 
 // Size returns the size of the file contents in bytes
-func (f *TempFile) Size() uint64 {
+func (f *TempFile[K]) Size() uint64 {
 	return f.bytesSize
 }
 
 // Indexes returns the indexes that the file is holding
-func (f *TempFile) Indexes() map[ObjectID]*ObjectIndex {
+func (f *TempFile[K]) Indexes() map[K]ObjectIndex {
 	return f.indexes
 }
 
 // Close will delete the file, as it is no longer needed, and given that these files may be really large,
 // we want to avoid having then live in the os for a long period of time.
-func (f *TempFile) Close() error {
+func (f *TempFile[K]) Close() error {
 	// This is a temp file, so on Close we delete it.
 	return os.Remove(f.file.Name())
 }
 
 // MetaFileKey  returns the key to be used for the json meta file
-func (f *TempFile) MetaFileKey() string {
+func (f *TempFile[K]) MetaFileKey() string {
 	return f.fileName + ".meta.json"
 }
 
 // readOnly logically closes the file by not accepting more appends, and returns the os.File used to upload the file to s3
-func (f *TempFile) readOnly() (*os.File, error) {
+func (f *TempFile[K]) readOnly() (*os.File, error) {
 	// Set file pointer to beginning
 	if _, err := f.file.Seek(0, io.SeekStart); err != nil {
 		return nil, err

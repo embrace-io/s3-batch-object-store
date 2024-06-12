@@ -8,16 +8,22 @@ import (
 )
 
 // Client is the object S3 client used to store and fetch object to/from s3, by using the index information
-type Client interface {
+type Client[K comparable] interface {
+	// NewTempFile Creates a new file in a temp folder
+	// tags can be used to store information about this file in S3, like retention days
+	// The file itself is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
+	// Once all the objects are appended, you can call UploadToS3 to upload the file to s3.
+	NewTempFile(tags map[string]string) (*TempFile[K], error)
+
 	// UploadToS3 will take a TempFile that already has all the objects in it, and upload it to a s3 file,
 	// in one single operation.
 	// withMetaFile indicates whether the metadata will be also uploaded to the file.MetaFileKey() location,
 	// with the index information for each object, or not.
-	UploadToS3(ctx context.Context, file *TempFile, withMetaFile bool) error
+	UploadToS3(ctx context.Context, file *TempFile[K], withMetaFile bool) error
 
 	// DeleteFromS3 allows to try to delete any files that may have been uploaded to s3 based on the provided file.
 	// This is provided in case of any error when calling UploadToS3, callers have the possibility to clean up the files.
-	DeleteFromS3(ctx context.Context, file *TempFile) error
+	DeleteFromS3(ctx context.Context, file *TempFile[K]) error
 
 	// Fetch downloads the payload from s3 given the ObjectIndex, fetching only the needed bytes, and returning
 	// the payload as a byte array.
@@ -34,14 +40,16 @@ type S3Client interface {
 	GetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
-type client struct {
+type client[K comparable] struct {
 	s3Client S3Client
 	s3Bucket string
 }
 
-func NewClient(awsConfig aws.Config, s3Bucket string) Client {
+// NewClient creates a new client that can be used to upload and download objects to s3.
+// K represents the type of IDs for the objects that will be uploaded and fetched.
+func NewClient[K comparable](awsConfig aws.Config, s3Bucket string) Client[K] {
 	s3Client := s3.NewFromConfig(awsConfig)
-	return &client{
+	return &client[K]{
 		s3Client: s3Client,
 		s3Bucket: s3Bucket,
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func (c *client) UploadToS3(ctx context.Context, file *TempFile, withMetaFile bool) error {
+func (c *client[K]) UploadToS3(ctx context.Context, file *TempFile[K], withMetaFile bool) error {
 	body, err := file.readOnly()
 	if err != nil {
 		return fmt.Errorf("failed to get the readonly file: %w", err)
@@ -49,7 +49,7 @@ func (c *client) UploadToS3(ctx context.Context, file *TempFile, withMetaFile bo
 	return nil
 }
 
-func (c *client) DeleteFromS3(ctx context.Context, file *TempFile) error {
+func (c *client[K]) DeleteFromS3(ctx context.Context, file *TempFile[K]) error {
 	metafileKey := file.MetaFileKey()
 	_, err := c.s3Client.DeleteObjects(ctx, &s3.DeleteObjectsInput{
 		Bucket: &c.s3Bucket,

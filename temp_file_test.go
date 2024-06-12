@@ -21,7 +21,9 @@ var testTags = map[string]string{
 func TestFile_WriteError(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	file, err := NewTempFile(testTags)
+	c := client[string]{}
+
+	file, err := c.NewTempFile(testTags)
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() { _ = file.Close() }()
 
@@ -46,7 +48,9 @@ func TestFile_WriteError(t *testing.T) {
 func TestFile_ReadOnly(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	file, err := NewTempFile(testTags)
+	c := client[string]{}
+
+	file, err := c.NewTempFile(testTags)
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() { _ = file.Close() }()
 
@@ -71,7 +75,9 @@ func TestFile_ReadOnly(t *testing.T) {
 func TestFile_ReadOnlyError(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	file, err := NewTempFile(testTags)
+	c := client[string]{}
+
+	file, err := c.NewTempFile(testTags)
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() { _ = file.Close() }()
 
@@ -100,8 +106,8 @@ func TestTimeToFilePath(t *testing.T) {
 
 // TestObject represents a document that may be uploaded to s3 and fetched from s3
 type TestObject struct {
-	ID    ObjectID `json:"id"`
-	Value string   `json:"value"`
+	ID    string `json:"id"`
+	Value string `json:"value"`
 }
 
 func marshalAndCompress(v any) ([]byte, error) {

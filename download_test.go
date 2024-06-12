@@ -17,7 +17,7 @@ import (
 )
 
 type objUploadFixture struct {
-	objID             ObjectID
+	objID             string
 	payload           []byte
 	obj               *TestObject
 	compressedPayload []byte
@@ -49,26 +49,32 @@ func TestClient_Fetch(t *testing.T) {
 	fixture2.offset = fixture1.length
 	fixture3.offset = fixture1.length + fixture2.length
 
-	expectedIndexes := map[ObjectID]ObjectIndex{
+	expectedIndexes := map[string]ObjectIndex{
 		fixture1.objID: {Offset: fixture1.offset, Length: fixture1.length},
 		fixture2.objID: {Offset: fixture2.offset, Length: fixture2.length},
 		fixture3.objID: {Offset: fixture3.offset, Length: fixture3.length},
 	}
 
-	bytesByID := map[ObjectID][]byte{
+	bytesByID := map[string][]byte{
 		fixture1.objID: fixture1.payload,
 		fixture2.objID: fixture2.payload,
 		fixture3.objID: fixture3.payload,
 	}
 
-	file, err := NewTempFile(testTags)
+	ctrl := gomock.NewController(t)
+	s3Mock := mocks3.NewMockS3Client(ctrl)
+
+	c := client[string]{
+		s3Bucket: testBucketName,
+		s3Client: s3Mock,
+	}
+
+	file, err := c.NewTempFile(testTags)
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() { _ = file.Close() }()
 
 	ctx := context.Background()
 
-	ctrl := gomock.NewController(t)
-	s3Mock := mocks3.NewMockS3Client(ctrl)
 	s3Mock.EXPECT().PutObject(ctx, matchUploadParams(file.fileName)).DoAndReturn(func(_ context.Context, input *s3.PutObjectInput, _ ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 		g.Expect(*input.Bucket).To(Equal(testBucketName))
 		g.Expect(*input.Key).To(Equal(file.fileName))
@@ -101,11 +107,6 @@ func TestClient_Fetch(t *testing.T) {
 		}, nil
 	}).Times(3)
 
-	c := client{
-		s3Bucket: testBucketName,
-		s3Client: s3Mock,
-	}
-
 	for _, fixture := range []objUploadFixture{fixture1, fixture2, fixture3} {
 		b, err := marshalAndCompress(fixture.obj)
 		g.Expect(err).ToNot(HaveOccurred())
@@ -116,11 +117,10 @@ func TestClient_Fetch(t *testing.T) {
 	g.Expect(err).To(BeNil())
 	g.Expect(len(file.indexes)).To(Equal(len(expectedIndexes)))
 	for id, index := range expectedIndexes {
-		indexPtr, ok := file.indexes[id]
+		idx, ok := file.indexes[id]
 		g.Expect(ok).To(BeTrue())
-		actualIndex := *indexPtr
-		g.Expect(actualIndex.Offset).To(Equal(index.Offset))
-		g.Expect(actualIndex.Length).To(Equal(index.Length))
+		g.Expect(idx.Offset).To(Equal(index.Offset))
+		g.Expect(idx.Length).To(Equal(index.Length))
 	}
 
 	for id, ind := range expectedIndexes {
@@ -145,7 +145,7 @@ func TestClient_FetchError(t *testing.T) {
 		return nil, errors.New("error connecting to s3")
 	}).Times(1)
 
-	c := client{
+	c := client[string]{
 		s3Bucket: testBucketName,
 		s3Client: s3Mock,
 	}

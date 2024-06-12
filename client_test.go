@@ -10,8 +10,8 @@ import (
 func TestNewClient(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	c := NewClient(aws.Config{}, testBucketName)
+	c := NewClient[string](aws.Config{}, testBucketName)
 	g.Expect(c).ToNot(BeNil())
-	g.Expect(c.(*client).s3Client).ToNot(BeNil())
-	g.Expect(c.(*client).s3Bucket).To(Equal(testBucketName))
+	g.Expect(c.(*client[string]).s3Client).ToNot(BeNil())
+	g.Expect(c.(*client[string]).s3Bucket).To(Equal(testBucketName))
 }
