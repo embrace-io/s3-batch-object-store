@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	mocks3batchstore "github.com/embrace-io/s3-batch-object-store/mock"
+	mocks3 "github.com/embrace-io/s3-batch-object-store/mock/aws"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 )
@@ -45,14 +45,14 @@ func TestClient_UploadToS3(t *testing.T) {
 		name           string
 		objs           []*TestObject
 		withMetaFile   bool
-		configureMocks func(g *WithT, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client)
+		configureMocks func(g *WithT, file *TempFile[string], s3Mock *mocks3.MockS3Client)
 		err            interface{}
 	}{
 		{
 			name:         "successful upload with meta file",
 			objs:         objs,
 			withMetaFile: true,
-			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				s3Mock.EXPECT().PutObject(ctx, matchUploadParams(file.fileName)).DoAndReturn(func(_ context.Context, input *s3.PutObjectInput, _ ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 					g.Expect(*input.Bucket).To(Equal(testBucketName))
 					g.Expect(*input.Key).To(Equal(file.fileName))
@@ -81,7 +81,7 @@ func TestClient_UploadToS3(t *testing.T) {
 			name:         "successful upload without meta file",
 			objs:         objs,
 			withMetaFile: false,
-			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				// Only regular file expected
 				s3Mock.EXPECT().PutObject(ctx, matchUploadParams(file.fileName)).DoAndReturn(func(_ context.Context, input *s3.PutObjectInput, _ ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 					g.Expect(*input.Bucket).To(Equal(testBucketName))
@@ -96,7 +96,7 @@ func TestClient_UploadToS3(t *testing.T) {
 			name:         "file readOnly error",
 			objs:         objs,
 			withMetaFile: true,
-			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				// If for any reason the underlying file gets closed, we won't be able to get the readOnly contents.
 				g.Expect(file.file.Close()).ToNot(HaveOccurred())
 			},
@@ -106,7 +106,7 @@ func TestClient_UploadToS3(t *testing.T) {
 			name:         "s3 upload error",
 			objs:         objs,
 			withMetaFile: true,
-			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				s3Mock.EXPECT().PutObject(ctx, matchUploadParams(file.fileName)).DoAndReturn(func(_ context.Context, input *s3.PutObjectInput, _ ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 					g.Expect(*input.Bucket).To(Equal(testBucketName))
 					g.Expect(*input.Key).To(Equal(file.fileName))
@@ -121,7 +121,7 @@ func TestClient_UploadToS3(t *testing.T) {
 			name:         "s3 meta file upload error",
 			objs:         objs,
 			withMetaFile: true,
-			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				s3Mock.EXPECT().PutObject(ctx, matchUploadParams(file.fileName)).DoAndReturn(func(_ context.Context, input *s3.PutObjectInput, _ ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 					g.Expect(*input.Bucket).To(Equal(testBucketName))
 					g.Expect(*input.Key).To(Equal(file.fileName))
@@ -154,7 +154,7 @@ func TestClient_UploadToS3(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			ctrl := gomock.NewController(t)
-			s3Mock := mocks3batchstore.NewMockS3Client(ctrl)
+			s3Mock := mocks3.NewMockS3Client(ctrl)
 
 			c := &client[string]{
 				s3Bucket: testBucketName,
@@ -213,13 +213,13 @@ func TestClient_DeleteFromS3(t *testing.T) {
 	tests := []struct {
 		name           string
 		objs           []*TestObject
-		configureMocks func(g *WithT, ctrl *gomock.Controller, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client)
+		configureMocks func(g *WithT, ctrl *gomock.Controller, file *TempFile[string], s3Mock *mocks3.MockS3Client)
 		err            interface{}
 	}{
 		{
 			name: "successful delete",
 			objs: objs,
-			configureMocks: func(g *WithT, ctrl *gomock.Controller, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, ctrl *gomock.Controller, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				// One delete call with the 2 files: regular file and meta file
 				metaFileKey := file.MetaFileKey()
 				s3Mock.EXPECT().DeleteObjects(ctx, &s3.DeleteObjectsInput{
@@ -236,7 +236,7 @@ func TestClient_DeleteFromS3(t *testing.T) {
 		{
 			name: "error deleting s3 files",
 			objs: objs,
-			configureMocks: func(g *WithT, ctrl *gomock.Controller, file *TempFile[string], s3Mock *mocks3batchstore.MockS3Client) {
+			configureMocks: func(g *WithT, ctrl *gomock.Controller, file *TempFile[string], s3Mock *mocks3.MockS3Client) {
 				metaFileKey := file.MetaFileKey()
 				s3Mock.EXPECT().DeleteObjects(ctx, &s3.DeleteObjectsInput{
 					Bucket: aws.String(testBucketName),
@@ -256,7 +256,7 @@ func TestClient_DeleteFromS3(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			ctrl := gomock.NewController(t)
-			s3Mock := mocks3batchstore.NewMockS3Client(ctrl)
+			s3Mock := mocks3.NewMockS3Client(ctrl)
 
 			c := &client[string]{
 				s3Bucket: testBucketName,

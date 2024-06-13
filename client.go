@@ -1,5 +1,3 @@
-//go:generate mockgen -source=./client.go -destination=./mock/mock_client.go -package=mocks3batchstore Client, S3Client
-
 package s3batchstore
 
 import (
@@ -10,6 +8,8 @@ import (
 )
 
 // Client is the object S3 client used to store and fetch object to/from s3, by using the index information
+//
+//go:generate mockgen -source=./client.go -destination=./mock/client/mock_client.go -package=mocks3batchstore Client
 type Client[K comparable] interface {
 	// NewTempFile Creates a new file in a temp folder
 	// tags can be used to store information about this file in S3, like retention days
@@ -34,6 +34,8 @@ type Client[K comparable] interface {
 }
 
 // S3Client is used to mock the aws s3 functions used in this module.
+//
+//go:generate mockgen -destination=./mock/aws/mock_s3client.go -package=mocks3 . S3Client
 type S3Client interface {
 	PutObject(ctx context.Context, params *s3.PutObjectInput, optFns ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 	DeleteObjects(ctx context.Context, params *s3.DeleteObjectsInput, optFns ...func(*s3.Options)) (*s3.DeleteObjectsOutput, error)
