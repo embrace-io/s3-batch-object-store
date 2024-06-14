@@ -37,6 +37,10 @@ type ObjectIndex struct {
 }
 
 func (c *client[K]) NewTempFile(tags map[string]string) (*TempFile[K], error) {
+	return NewTempFile[K](tags)
+}
+
+func NewTempFile[K comparable](tags map[string]string) (*TempFile[K], error) {
 	fileName := ulid.Make().String()
 
 	file, err := os.CreateTemp(os.TempDir(), fileName)
