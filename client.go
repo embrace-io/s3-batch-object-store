@@ -7,7 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-// Client is the object S3 client used to store and fetch object to/from s3, by using the index information
+// Client is the client used to store and fetch object to/from s3.
+// K represents the type of IDs for the objects that will be uploaded
+// To create a new file, first call NewTempFile, then append objects to it, and finally call UploadToS3.
+// After the file is uploaded, you can save the object indexes to a database, and use them to fetch the objects later.
+// To fetch the contents of a single object, call Fetch with the ObjectIndex that you had stored.
 //
 //go:generate mockgen -source=./client.go -destination=./mock/client/mock_client.go -package=mocks3batchstore Client
 type Client[K comparable] interface {

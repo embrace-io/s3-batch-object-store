@@ -16,6 +16,7 @@ const version string = "v1"
 // This way we avoid having all the bytes in memory.
 // This will also keep track of the indexes for each slice of bytes, in order to know where each of them are located
 // TempFile is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
+// K represents the type of IDs for the objects that will be uploaded
 type TempFile[K comparable] struct {
 	fileName  string
 	file      *os.File
