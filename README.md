@@ -1,7 +1,7 @@
 # s3-batch-object-store
 
 `s3-batch-object-store` is a Go module that allows for batch uploading of objects to a single S3 file and retrieving 
-each object separately using the AWS S3 API, fetching only the bytes for that specific object
+each object separately using the AWS S3 API, fetching only the bytes for that specific object.
 
 ## Features
 
@@ -73,13 +73,21 @@ func main() {
 		}
 	}
 
+	// You can check the file properties to decide when to upload a file:
+	fmt.Printf("File is %s old, has %d objects, and is %d bytes long\n", file.Age(), file.Count(), file.Size())
+	// File is 42.375µs old, has 3 objects, and is 93 bytes long
+
 	// Upload the objects
-	err = client.UploadToS3(ctx, file, true)
+	err = client.UploadFile(ctx, file, true)
 	if err != nil {
 		panic("failed to upload object: " + err.Error())
 	}
 
 	// At this point the file.Indexes() can be stored to be used later to retrieve the objects.
+	fmt.Printf("File indexes:\n")
+	for id, index := range file.Indexes() {
+		fmt.Printf("objectID: %v, index: %+v\n", id, index)
+	}
 
 	// Retrieve an object
 	indexes := file.Indexes()
@@ -92,8 +100,6 @@ func main() {
 	// Contents of object2:
 	// This is the content of object2.
 }
-
-
 ```
 
 ## Contributing
