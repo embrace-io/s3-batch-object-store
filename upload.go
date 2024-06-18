@@ -66,11 +66,11 @@ func (c *client[K]) DeleteFromS3(ctx context.Context, file *TempFile[K]) error {
 	return nil
 }
 
+// serializeTags converts the tags to url encoded string.
 func serializeTags(tags map[string]string) string {
 	params := url.Values{}
 	for k, v := range tags {
 		params.Add(k, v)
 	}
-	encoded := params.Encode()
-	return encoded
+	return params.Encode()
 }

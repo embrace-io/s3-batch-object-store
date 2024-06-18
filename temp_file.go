@@ -26,7 +26,9 @@ type TempFile[K comparable] struct {
 	readonly bool
 	count    int    // How many items are currently saved in the file
 	offset   uint64 // The current offset in the file
-	indexes  map[K]ObjectIndex
+	// FEEDBACK: If someone attempts to upload the same object multiple times the indexes will be overwritten but the
+	// FEEDBACK: file will still grow.
+	indexes map[K]ObjectIndex
 }
 
 type ObjectIndex struct {
@@ -48,6 +50,9 @@ func NewTempFile[K comparable](tags map[string]string) (*TempFile[K], error) {
 	}
 
 	return &TempFile[K]{
+		// FEEDBACK: I think this is fine for now, but I think it would be better to allows
+		// FEEDBACK: people to choose their file name schema. I don't see a strong reason
+		// FEEDBACK: for why it should be bucketed by creation date.
 		fileName:  version + "/" + timeToFilePath(time.Now()) + "/" + fileName,
 		file:      file,
 		createdOn: time.Now(),
@@ -61,11 +66,11 @@ func NewTempFile[K comparable](tags map[string]string) (*TempFile[K], error) {
 // telling where the object is located in this file (file, offset, length)
 // This method is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
 func (f *TempFile[K]) Append(id K, bytes []byte) error {
-	length := uint64(len(bytes))
-
 	if f.readonly {
 		return fmt.Errorf("file %s is readonly", f.fileName)
 	}
+
+	length := uint64(len(bytes))
 
 	// Append to file
 	bytesWritten, err := f.file.Write(bytes)
@@ -74,6 +79,7 @@ func (f *TempFile[K]) Append(id K, bytes []byte) error {
 	}
 
 	// Add index
+	// FEEDBACK: Error if the id already exists.
 	f.indexes[id] = ObjectIndex{
 		File:   f.fileName,
 		Offset: f.offset,
@@ -97,7 +103,7 @@ func (f *TempFile[K]) Tags() map[string]string {
 	return f.tags
 }
 
-// Age returns the duration since this file has been started
+// Age returns the duration since this file was created
 func (f *TempFile[K]) Age() time.Duration {
 	return time.Since(f.createdOn)
 }

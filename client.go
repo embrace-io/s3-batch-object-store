@@ -15,20 +15,23 @@ import (
 //
 //go:generate mockgen -source=./client.go -destination=./mock/client/mock_client.go -package=mocks3batchstore Client
 type Client[K comparable] interface {
-	// NewTempFile Creates a new file in a temp folder
+	// NewTempFile creates a new file in a temp folder.
 	// tags can be used to store information about this file in S3, like retention days
 	// The file itself is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
 	// Once all the objects are appended, you can call UploadToS3 to upload the file to s3.
+	// QUESTION: Why does NewTempFile have to be a part of this interface?
 	NewTempFile(tags map[string]string) (*TempFile[K], error)
 
 	// UploadToS3 will take a TempFile that already has all the objects in it, and upload it to a s3 file,
 	// in one single operation.
 	// withMetaFile indicates whether the metadata will be also uploaded to the file.MetaFileKey() location,
 	// with the index information for each object, or not.
+	// FEEDBACK: Rename to UploadFile
 	UploadToS3(ctx context.Context, file *TempFile[K], withMetaFile bool) error
 
 	// DeleteFromS3 allows to try to delete any files that may have been uploaded to s3 based on the provided file.
 	// This is provided in case of any error when calling UploadToS3, callers have the possibility to clean up the files.
+	// FEEDBACK: Rename to DeleteFile, and add the withMetaFile also
 	DeleteFromS3(ctx context.Context, file *TempFile[K]) error
 
 	// Fetch downloads the payload from s3 given the ObjectIndex, fetching only the needed bytes, and returning
