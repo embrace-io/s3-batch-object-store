@@ -23,11 +23,10 @@ type TempFile[K comparable] struct {
 	createdOn time.Time
 	tags      map[string]string
 
-	readonly  bool
-	count     int    // How many items are currently saved in the file
-	bytesSize uint64 // The size of the actual file that we are storing
-	offset    uint64 // The current offset in the file
-	indexes   map[K]ObjectIndex
+	readonly bool
+	count    int    // How many items are currently saved in the file
+	offset   uint64 // The current offset in the file
+	indexes  map[K]ObjectIndex
 }
 
 type ObjectIndex struct {
@@ -68,10 +67,6 @@ func (f *TempFile[K]) Append(id K, bytes []byte) error {
 		return fmt.Errorf("file %s is readonly", f.fileName)
 	}
 
-	// Increment counters/metrics
-	f.count++
-	f.bytesSize += length
-
 	// Append to file
 	bytesWritten, err := f.file.Write(bytes)
 	if err != nil {
@@ -84,6 +79,9 @@ func (f *TempFile[K]) Append(id K, bytes []byte) error {
 		Offset: f.offset,
 		Length: length,
 	}
+
+	// Increment counters/metrics
+	f.count++
 	f.offset += length
 
 	return nil
@@ -111,7 +109,7 @@ func (f *TempFile[K]) Count() int {
 
 // Size returns the size of the file contents in bytes
 func (f *TempFile[K]) Size() uint64 {
-	return f.bytesSize
+	return f.offset
 }
 
 // Indexes returns the indexes that the file is holding
