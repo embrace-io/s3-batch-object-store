@@ -24,7 +24,7 @@ type TempFile[K comparable] struct {
 	tags      map[string]string
 
 	readonly bool
-	count    int    // How many items are currently saved in the file
+	count    uint   // How many items are currently saved in the file
 	offset   uint64 // The current offset in the file
 	indexes  map[K]ObjectIndex
 }
@@ -103,7 +103,7 @@ func (f *TempFile[K]) Age() time.Duration {
 }
 
 // Count returns the number of items stored in this file
-func (f *TempFile[K]) Count() int {
+func (f *TempFile[K]) Count() uint {
 	return f.count
 }
 

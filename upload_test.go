@@ -170,7 +170,7 @@ func TestClient_UploadToS3(t *testing.T) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(file.Append(objs.ID, compressed)).ToNot(HaveOccurred())
 			}
-			g.Expect(file.Count()).To(Equal(len(test.objs)))
+			g.Expect(file.Count()).To(Equal(uint(len(test.objs))))
 			g.Expect(file.Age()).To(BeNumerically(">=", uint64(0)))
 			g.Expect(file.Size()).To(BeNumerically(">=", uint64(0)))
 
@@ -272,7 +272,7 @@ func TestClient_DeleteFromS3(t *testing.T) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(file.Append(obj.ID, compressed)).ToNot(HaveOccurred())
 			}
-			g.Expect(file.Count()).To(Equal(len(test.objs)))
+			g.Expect(file.Count()).To(Equal(uint(len(test.objs))))
 			g.Expect(file.Age()).To(BeNumerically(">=", uint64(0)))
 			g.Expect(file.Size()).To(BeNumerically(">=", uint64(0)))
 

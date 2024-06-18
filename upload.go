@@ -71,6 +71,5 @@ func serializeTags(tags map[string]string) string {
 	for k, v := range tags {
 		params.Add(k, v)
 	}
-	encoded := params.Encode()
-	return encoded
+	return params.Encode()
 }
