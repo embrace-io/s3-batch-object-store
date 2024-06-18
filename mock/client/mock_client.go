@@ -41,18 +41,18 @@ func (m *MockClient[K]) EXPECT() *MockClientMockRecorder[K] {
 	return m.recorder
 }
 
-// DeleteFromS3 mocks base method.
-func (m *MockClient[K]) DeleteFromS3(ctx context.Context, file *s3batchstore.TempFile[K]) error {
+// DeleteFile mocks base method.
+func (m *MockClient[K]) DeleteFile(ctx context.Context, file *s3batchstore.TempFile[K]) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteFromS3", ctx, file)
+	ret := m.ctrl.Call(m, "DeleteFile", ctx, file)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteFromS3 indicates an expected call of DeleteFromS3.
-func (mr *MockClientMockRecorder[K]) DeleteFromS3(ctx, file any) *gomock.Call {
+// DeleteFile indicates an expected call of DeleteFile.
+func (mr *MockClientMockRecorder[K]) DeleteFile(ctx, file any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFromS3", reflect.TypeOf((*MockClient[K])(nil).DeleteFromS3), ctx, file)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFile", reflect.TypeOf((*MockClient[K])(nil).DeleteFile), ctx, file)
 }
 
 // Fetch mocks base method.
@@ -85,18 +85,18 @@ func (mr *MockClientMockRecorder[K]) NewTempFile(tags any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewTempFile", reflect.TypeOf((*MockClient[K])(nil).NewTempFile), tags)
 }
 
-// UploadToS3 mocks base method.
-func (m *MockClient[K]) UploadToS3(ctx context.Context, file *s3batchstore.TempFile[K], withMetaFile bool) error {
+// UploadFile mocks base method.
+func (m *MockClient[K]) UploadFile(ctx context.Context, file *s3batchstore.TempFile[K], withMetaFile bool) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadToS3", ctx, file, withMetaFile)
+	ret := m.ctrl.Call(m, "UploadFile", ctx, file, withMetaFile)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UploadToS3 indicates an expected call of UploadToS3.
-func (mr *MockClientMockRecorder[K]) UploadToS3(ctx, file, withMetaFile any) *gomock.Call {
+// UploadFile indicates an expected call of UploadFile.
+func (mr *MockClientMockRecorder[K]) UploadFile(ctx, file, withMetaFile any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadToS3", reflect.TypeOf((*MockClient[K])(nil).UploadToS3), ctx, file, withMetaFile)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockClient[K])(nil).UploadFile), ctx, file, withMetaFile)
 }
 
 // MockS3Client is a mock of S3Client interface.

@@ -16,7 +16,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestClient_UploadToS3(t *testing.T) {
+func TestClient_UploadFile(t *testing.T) {
 	g := NewGomegaWithT(t)
 	ctx := context.Background()
 
@@ -175,7 +175,7 @@ func TestClient_UploadToS3(t *testing.T) {
 			g.Expect(file.Size()).To(BeNumerically(">=", uint64(0)))
 
 			test.configureMocks(g, file, s3Mock)
-			err = c.UploadToS3(ctx, file, test.withMetaFile)
+			err = c.UploadFile(ctx, file, test.withMetaFile)
 			if test.err == nil {
 				g.Expect(err).ToNot(HaveOccurred())
 			} else {
@@ -185,7 +185,7 @@ func TestClient_UploadToS3(t *testing.T) {
 	}
 }
 
-func TestClient_DeleteFromS3(t *testing.T) {
+func TestClient_DeleteFile(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	ctx := context.Background()
@@ -277,7 +277,7 @@ func TestClient_DeleteFromS3(t *testing.T) {
 			g.Expect(file.Size()).To(BeNumerically(">=", uint64(0)))
 
 			test.configureMocks(g, ctrl, file, s3Mock)
-			err = c.DeleteFromS3(ctx, file)
+			err = c.DeleteFile(ctx, file)
 			if test.err == nil {
 				g.Expect(err).ToNot(HaveOccurred())
 			} else {

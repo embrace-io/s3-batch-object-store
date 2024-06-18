@@ -78,7 +78,7 @@ func main() {
 	// File is 42.375µs old, has 3 objects, and is 93 bytes long
 
 	// Upload the objects
-	err = client.UploadToS3(ctx, file, true)
+	err = client.UploadFile(ctx, file, true)
 	if err != nil {
 		panic("failed to upload object: " + err.Error())
 	}

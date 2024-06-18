@@ -113,7 +113,7 @@ func TestClient_Fetch(t *testing.T) {
 		g.Expect(file.Append(fixture.obj.ID, b)).ToNot(HaveOccurred())
 	}
 
-	err = c.UploadToS3(ctx, file, true)
+	err = c.UploadFile(ctx, file, true)
 	g.Expect(err).To(BeNil())
 	g.Expect(len(file.indexes)).To(Equal(len(expectedIndexes)))
 	for id, index := range expectedIndexes {

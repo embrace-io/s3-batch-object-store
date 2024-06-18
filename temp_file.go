@@ -61,11 +61,11 @@ func NewTempFile[K comparable](tags map[string]string) (*TempFile[K], error) {
 // telling where the object is located in this file (file, offset, length)
 // This method is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
 func (f *TempFile[K]) Append(id K, bytes []byte) error {
-	length := uint64(len(bytes))
-
 	if f.readonly {
 		return fmt.Errorf("file %s is readonly", f.fileName)
 	}
+
+	length := uint64(len(bytes))
 
 	// Append to file
 	bytesWritten, err := f.file.Write(bytes)
@@ -97,7 +97,7 @@ func (f *TempFile[K]) Tags() map[string]string {
 	return f.tags
 }
 
-// Age returns the duration since this file has been started
+// Age returns the duration since this file was created
 func (f *TempFile[K]) Age() time.Duration {
 	return time.Since(f.createdOn)
 }
