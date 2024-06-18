@@ -12,10 +12,11 @@ import (
 // To create a new file, first call NewTempFile, then append objects to it, and finally call UploadToS3.
 // After the file is uploaded, you can save the object indexes to a database, and use them to fetch the objects later.
 // To fetch the contents of a single object, call Fetch with the ObjectIndex that you had stored.
+// is this space needed?
 //
 //go:generate mockgen -source=./client.go -destination=./mock/client/mock_client.go -package=mocks3batchstore Client
 type Client[K comparable] interface {
-	// NewTempFile Creates a new file in a temp folder
+	// NewTempFile creates a new file in a temp folder
 	// tags can be used to store information about this file in S3, like retention days
 	// The file itself is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
 	// Once all the objects are appended, you can call UploadToS3 to upload the file to s3.

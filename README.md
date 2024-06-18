@@ -1,13 +1,15 @@
 # s3-batch-object-store
 
 `s3-batch-object-store` is a Go module that allows for batch uploading of objects to a single S3 file and retrieving 
-each object separately using the AWS S3 API, fetching only the bytes for that specific object
+each object separately using the AWS S3 API, fetching only the bytes for that specific object.
 
 ## Features
 
 - Batch upload multiple objects into a single S3 file, reducing the number of PUT operations.
 - Retrieve individual objects using index information (byte offset and length).
 
+// should we add a section explaining the advantajes of using this module? i mean reduce costs doing put operations, improve 
+performance, etc.
 ## Installation
 
 To install the module, use `go get`:

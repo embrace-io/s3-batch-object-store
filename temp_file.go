@@ -24,7 +24,7 @@ type TempFile[K comparable] struct {
 	tags      map[string]string
 
 	readonly  bool
-	count     int    // How many items are currently saved in the file
+	count     uint   // How many items are currently saved in the file
 	bytesSize uint64 // The size of the actual file that we are storing
 	offset    uint64 // The current offset in the file
 	indexes   map[K]ObjectIndex
@@ -36,6 +36,7 @@ type ObjectIndex struct {
 	Length uint64 `json:"length"`
 }
 
+// why this method is an override of the NewTempFile method?
 func (c *client[K]) NewTempFile(tags map[string]string) (*TempFile[K], error) {
 	return NewTempFile[K](tags)
 }
@@ -100,16 +101,19 @@ func (f *TempFile[K]) Tags() map[string]string {
 }
 
 // Age returns the duration since this file has been started
+// do we need this method? we are just using it in tests, maybe we can remove it and remove the created on attribute.
 func (f *TempFile[K]) Age() time.Duration {
 	return time.Since(f.createdOn)
 }
 
 // Count returns the number of items stored in this file
-func (f *TempFile[K]) Count() int {
+// same than Age method.
+func (f *TempFile[K]) Count() uint {
 	return f.count
 }
 
 // Size returns the size of the file contents in bytes
+// same than Age method.
 func (f *TempFile[K]) Size() uint64 {
 	return f.bytesSize
 }

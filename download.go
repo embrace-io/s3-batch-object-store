@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+// i will put the Fetch, NewTempFile, UploadToS3, DeleteFromS3 methods on the same file because they are part of the
+// same interface.
 func (c *client[K]) Fetch(ctx context.Context, ind ObjectIndex) ([]byte, error) {
 	byteRange := byteRangeString(ind.Offset, ind.Length)
 	result, err := c.s3Client.GetObject(ctx, &s3.GetObjectInput{
