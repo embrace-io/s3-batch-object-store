@@ -3,7 +3,7 @@ module github.com/embrace-io/s3-batch-object-store
 go 1.22
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.29.0
+	github.com/aws/aws-sdk-go-v2 v1.30.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.56.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/onsi/gomega v1.33.1
