@@ -7,6 +7,10 @@ The method basically consists of appending multiple objects to a single file, ke
 is placed in the file, and then upload one single file to s3 with many objects in it, reducing drastically the number 
 of PUT operations needed to store a large number of objets.
 
+After uploading a file, you can store the index information by calling `file.Indexdes()` wherever you want.
+The best solution for how to store and query your index data will depend on your application data patterns and is beyond
+the scope of what this package aspires to do.
+
 Then, when you need to retrieve an object, you can use the index information to fetch that object and the GET call to s3
 will only retrieve the bytes that correspond to that object, reducing the amount of data transferred.
 
