@@ -78,8 +78,7 @@ func main() {
 
 	// Append all the objects to the file:
 	for id, obj := range objects {
-		err = file.Append(id, obj)
-		if err != nil {
+		if err = file.Append(id, obj); err != nil {
 			panic("failed to append object to temp file: " + err.Error())
 		}
 	}
