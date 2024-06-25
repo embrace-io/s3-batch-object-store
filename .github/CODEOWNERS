@@ -1,5 +1,2 @@
 # Default fallback for everything not matched by any pattern
-* @embrace-io/team-data-commons
-
-# DevOps
-.github @embrace-io/team-devops
+* @embrace-io/opensource-backend
