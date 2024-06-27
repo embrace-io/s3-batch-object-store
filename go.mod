@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.30.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.56.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.57.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/onsi/gomega v1.33.1
 	go.uber.org/mock v0.4.0
