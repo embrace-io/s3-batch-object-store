@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.66.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/onsi/gomega v1.34.2
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.5.0
 )
 
 require (
