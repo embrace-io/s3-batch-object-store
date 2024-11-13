@@ -168,7 +168,8 @@ func TestClient_UploadFile(t *testing.T) {
 			for _, objs := range test.objs {
 				compressed, err := marshalAndCompress(objs)
 				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(file.Append(objs.ID, compressed)).ToNot(HaveOccurred())
+				_, err = file.Append(objs.ID, compressed)
+				g.Expect(err).ToNot(HaveOccurred())
 			}
 			g.Expect(file.Count()).To(Equal(uint(len(test.objs))))
 			g.Expect(file.Age()).To(BeNumerically(">=", uint64(0)))
@@ -270,7 +271,8 @@ func TestClient_DeleteFile(t *testing.T) {
 			for _, obj := range test.objs {
 				compressed, err := marshalAndCompress(obj)
 				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(file.Append(obj.ID, compressed)).ToNot(HaveOccurred())
+				_, err = file.Append(obj.ID, compressed)
+				g.Expect(err).ToNot(HaveOccurred())
 			}
 			g.Expect(file.Count()).To(Equal(uint(len(test.objs))))
 			g.Expect(file.Age()).To(BeNumerically(">=", uint64(0)))

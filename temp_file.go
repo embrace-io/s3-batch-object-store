@@ -57,13 +57,13 @@ func NewTempFile[K comparable](tags map[string]string) (*TempFile[K], error) {
 }
 
 // Append will take an id, and the slice of bytes of the Object, and append it to the temp file.
-// This will also store the associated ObjectIndex information for this slice of bytes,
-// telling where the object is located in this file (file, offset, length)
+// This will also return the associated ObjectIndex information for this slice of bytes, which tells
+// where the object is located in this file (file, offset, length)
 // This method is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
 // If you provide the same id twice, the second call will overwrite the first one, but the file will still grow in size.
-func (f *TempFile[K]) Append(id K, bytes []byte) error {
+func (f *TempFile[K]) Append(id K, bytes []byte) (ObjectIndex, error) {
 	if f.readonly {
-		return fmt.Errorf("file %s is readonly", f.fileName)
+		return ObjectIndex{}, fmt.Errorf("file %s is readonly", f.fileName)
 	}
 
 	length := uint64(len(bytes))
@@ -71,21 +71,22 @@ func (f *TempFile[K]) Append(id K, bytes []byte) error {
 	// Append to file
 	bytesWritten, err := f.file.Write(bytes)
 	if err != nil {
-		return fmt.Errorf("failed to write %d bytes (%d written) to file %s: %w", length, bytesWritten, f.file.Name(), err)
+		return ObjectIndex{}, fmt.Errorf("failed to write %d bytes (%d written) to file %s: %w", length, bytesWritten, f.file.Name(), err)
 	}
 
 	// Add index
-	f.indexes[id] = ObjectIndex{
+	index := ObjectIndex{
 		File:   f.fileName,
 		Offset: f.offset,
 		Length: length,
 	}
+	f.indexes[id] = index
 
 	// Increment counters/metrics
 	f.count++
 	f.offset += length
 
-	return nil
+	return index, nil
 }
 
 // Name returns the fileName
