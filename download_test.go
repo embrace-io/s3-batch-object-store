@@ -110,7 +110,7 @@ func TestClient_Fetch(t *testing.T) {
 	for _, fixture := range []objUploadFixture{fixture1, fixture2, fixture3} {
 		b, err := marshalAndCompress(fixture.obj)
 		g.Expect(err).ToNot(HaveOccurred())
-		_, err = file.Append(fixture.obj.ID, b)
+		_, err = file.AppendAndReturnIndex(fixture.obj.ID, b)
 		g.Expect(err).ToNot(HaveOccurred())
 	}
 

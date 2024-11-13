@@ -56,12 +56,19 @@ func NewTempFile[K comparable](tags map[string]string) (*TempFile[K], error) {
 	}, nil
 }
 
-// Append will take an id, and the slice of bytes of the Object, and append it to the temp file.
+// Append is the same as AppendAndReturnIndex but doesn't return an index. This method could be deleted, but
+// it is kept for backwards compatibility.
+func (f *TempFile[K]) Append(id K, bytes []byte) error {
+	_, err := f.AppendAndReturnIndex(id, bytes)
+	return err
+}
+
+// AppendAndReturnIndex will take an id, and the slice of bytes of the Object, and append it to the temp file.
 // This will also return the associated ObjectIndex information for this slice of bytes, which tells
 // where the object is located in this file (file, offset, length)
 // This method is not thread safe, if you expect to make concurrent calls to Append, you should protect it.
 // If you provide the same id twice, the second call will overwrite the first one, but the file will still grow in size.
-func (f *TempFile[K]) Append(id K, bytes []byte) (ObjectIndex, error) {
+func (f *TempFile[K]) AppendAndReturnIndex(id K, bytes []byte) (ObjectIndex, error) {
 	if f.readonly {
 		return ObjectIndex{}, fmt.Errorf("file %s is readonly", f.fileName)
 	}
