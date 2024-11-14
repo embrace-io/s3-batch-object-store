@@ -18,6 +18,38 @@ var testTags = map[string]string{
 	"retention-days": "14",
 }
 
+func TestFile_Append(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	c := client[string]{}
+
+	file, err := c.NewTempFile(testTags)
+	g.Expect(err).ToNot(HaveOccurred())
+	defer func() { _ = file.Close() }()
+
+	obj1 := &TestObject{ID: "4", Value: "contents"}
+	compressed, err := marshalAndCompress(obj1)
+	g.Expect(err).ToNot(HaveOccurred())
+
+	err = file.Append(obj1.ID, compressed)
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(file.Name()).To(Equal(file.fileName))
+	g.Expect(file.Indexes()[obj1.ID].Offset).To(Equal(uint64(0)))
+	g.Expect(file.Indexes()[obj1.ID].Length).To(BeNumerically(">", 0))
+
+	// Add another object, using AppendAndReturnIndex
+	obj2 := &TestObject{ID: "5", Value: "contents"}
+	compressed, err = marshalAndCompress(obj2)
+	g.Expect(err).ToNot(HaveOccurred())
+
+	index, err := file.AppendAndReturnIndex(obj2.ID, compressed)
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(file.Name()).To(Equal(file.fileName))
+	g.Expect(file.Indexes()[obj2.ID]).To(Equal(index))
+	g.Expect(file.Indexes()[obj2.ID].Offset).To(Equal(file.Indexes()[obj1.ID].Length))
+	g.Expect(file.Indexes()[obj2.ID].Length).To(BeNumerically(">", 0))
+}
+
 func TestFile_WriteError(t *testing.T) {
 	g := NewGomegaWithT(t)
 
@@ -31,18 +63,26 @@ func TestFile_WriteError(t *testing.T) {
 	compressed, err := marshalAndCompress(obj)
 	g.Expect(err).ToNot(HaveOccurred())
 
-	err = file.Append(obj.ID, compressed)
+	index, err := file.AppendAndReturnIndex(obj.ID, compressed)
 	g.Expect(err).ToNot(HaveOccurred())
 	g.Expect(file.Name()).To(Equal(file.fileName))
+	g.Expect(file.Indexes()[obj.ID]).To(Equal(index))
 	g.Expect(file.Indexes()[obj.ID].Offset).To(Equal(uint64(0)))
 	g.Expect(file.Indexes()[obj.ID].Length).To(BeNumerically(">", 0))
 
 	// If file is closed, it won't be able to write more:
 	g.Expect(file.file.Close()).ToNot(HaveOccurred())
 
-	err = file.Append(obj.ID, compressed)
+	// Try to append a new object
+	obj = &TestObject{ID: "5", Value: "contents"}
+	compressed, err = marshalAndCompress(obj)
+	g.Expect(err).ToNot(HaveOccurred())
+
+	index, err = file.AppendAndReturnIndex(obj.ID, compressed)
 	fileName := file.file.Name()
 	g.Expect(err).To(MatchError(fmt.Sprintf("failed to write %d bytes (0 written) to file %s: write %s: file already closed", len(compressed), fileName, fileName)))
+	g.Expect(index).To(Equal(ObjectIndex{}))
+	g.Expect(file.Indexes()[obj.ID]).To(Equal(index))
 }
 
 func TestFile_ReadOnly(t *testing.T) {
@@ -59,17 +99,25 @@ func TestFile_ReadOnly(t *testing.T) {
 	g.Expect(err).ToNot(HaveOccurred())
 
 	// Store one object, then ask for the readonly file and try to store one more object
-	err = file.Append(obj.ID, compressed)
+	index, err := file.AppendAndReturnIndex(obj.ID, compressed)
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(file.Indexes()[obj.ID].Offset).To(Equal(uint64(0)))
-	g.Expect(file.Indexes()[obj.ID].Length).To(BeNumerically(">", 0))
+	g.Expect(file.Indexes()[obj.ID]).To(Equal(index))
+	g.Expect(index.Offset).To(Equal(uint64(0)))
+	g.Expect(index.Length).To(BeNumerically(">", 0))
 
 	roFile, err := file.readOnly()
 	g.Expect(roFile).ToNot(BeNil())
 	g.Expect(err).To(BeNil())
 
-	err = file.Append(obj.ID, compressed)
+	// Append a new object
+	obj = &TestObject{ID: "5", Value: "contents"}
+	compressed, err = marshalAndCompress(obj)
+	g.Expect(err).ToNot(HaveOccurred())
+
+	index, err = file.AppendAndReturnIndex(obj.ID, compressed)
 	g.Expect(err).To(MatchError(fmt.Sprintf("file %s is readonly", file.fileName)))
+	g.Expect(index).To(Equal(ObjectIndex{}))
+	g.Expect(file.Indexes()[obj.ID]).To(Equal(index))
 }
 
 func TestFile_ReadOnlyError(t *testing.T) {
@@ -85,8 +133,9 @@ func TestFile_ReadOnlyError(t *testing.T) {
 	compressed, err := marshalAndCompress(obj)
 	g.Expect(err).ToNot(HaveOccurred())
 
-	err = file.Append(obj.ID, compressed)
+	index, err := file.AppendAndReturnIndex(obj.ID, compressed)
 	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(file.Indexes()[obj.ID]).To(Equal(index))
 	g.Expect(file.Indexes()[obj.ID].Offset).To(Equal(uint64(0)))
 	g.Expect(file.Indexes()[obj.ID].Length).To(BeNumerically(">", 0))
 
