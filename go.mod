@@ -1,6 +1,7 @@
 module github.com/embrace-io/s3-batch-object-store
 
 go 1.22.0
+toolchain go1.23.7
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
@@ -21,7 +22,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.15 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
