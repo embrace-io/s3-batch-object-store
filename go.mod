@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.36.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.83.0
 	github.com/oklog/ulid/v2 v2.1.1
-	github.com/onsi/gomega v1.37.0
+	github.com/onsi/gomega v1.38.0
 	go.uber.org/mock v0.5.2
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.17 // indirect
 	github.com/aws/smithy-go v1.22.4 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
