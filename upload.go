@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/klauspost/compress/zstd"
 )
 
 func (c *client[K]) UploadFile(ctx context.Context, file *TempFile[K], withMetaFile bool) error {
@@ -35,10 +36,26 @@ func (c *client[K]) UploadFile(ctx context.Context, file *TempFile[K], withMetaF
 		if err != nil {
 			return fmt.Errorf("failed to marshal meta body: %w", err)
 		}
+
+		// Compress the metafile body with zstd
+		var compressedBuf bytes.Buffer
+		zstdWriter, err := zstd.NewWriter(&compressedBuf)
+		if err != nil {
+			return fmt.Errorf("failed to create zstd writer: %w", err)
+		}
+		_, err = zstdWriter.Write(metafileBody)
+		if err != nil {
+			return fmt.Errorf("failed to write to zstd writer: %w", err)
+		}
+		err = zstdWriter.Close()
+		if err != nil {
+			return fmt.Errorf("failed to close zstd writer: %w", err)
+		}
+
 		_, err = c.s3Client.PutObject(ctx, &s3.PutObjectInput{
 			Bucket:  &c.s3Bucket,
 			Key:     &metafileKey,
-			Body:    bytes.NewReader(metafileBody),
+			Body:    bytes.NewReader(compressedBuf.Bytes()),
 			Tagging: &tagging,
 		})
 		if err != nil {
