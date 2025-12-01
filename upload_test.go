@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	mocks3 "github.com/embrace-io/s3-batch-object-store/mock/aws"
+	"github.com/klauspost/compress/zstd"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 )
@@ -66,8 +67,15 @@ func TestClient_UploadFile(t *testing.T) {
 					g.Expect(input.Body).ToNot(BeNil())
 					g.Expect(input.Tagging).To(Equal(aws.String("retention-days=14")))
 
-					body, err := io.ReadAll(input.Body)
+					compressedBody, err := io.ReadAll(input.Body)
 					g.Expect(err).ToNot(HaveOccurred())
+
+					// Decompress the zstd-compressed body
+					zstdReader, err := zstd.NewReader(nil)
+					g.Expect(err).ToNot(HaveOccurred())
+					body, err := zstdReader.DecodeAll(compressedBody, nil)
+					g.Expect(err).ToNot(HaveOccurred())
+
 					g.Expect(body).To(MatchJSON(`{` +
 						`"1":{"file":"` + file.fileName + `","offset":0,"length":` + strconv.Itoa(compressedObjLengths[0]) + `},` +
 						`"3":{"file":"` + file.fileName + `","offset":` + strconv.Itoa(compressedObjLengths[0]) + `,"length":` + strconv.Itoa(compressedObjLengths[1]) + `},` +
@@ -135,8 +143,15 @@ func TestClient_UploadFile(t *testing.T) {
 					g.Expect(input.Body).ToNot(BeNil())
 					g.Expect(input.Tagging).To(Equal(aws.String("retention-days=14")))
 
-					body, err := io.ReadAll(input.Body)
+					compressedBody, err := io.ReadAll(input.Body)
 					g.Expect(err).ToNot(HaveOccurred())
+
+					// Decompress the zstd-compressed body
+					zstdReader, err := zstd.NewReader(nil)
+					g.Expect(err).ToNot(HaveOccurred())
+					body, err := zstdReader.DecodeAll(compressedBody, nil)
+					g.Expect(err).ToNot(HaveOccurred())
+
 					g.Expect(body).To(MatchJSON(`{` +
 						`"1":{"file":"` + file.fileName + `","offset":0,"length":` + strconv.Itoa(compressedObjLengths[0]) + `},` +
 						`"3":{"file":"` + file.fileName + `","offset":` + strconv.Itoa(compressedObjLengths[0]) + `,"length":` + strconv.Itoa(compressedObjLengths[1]) + `},` +

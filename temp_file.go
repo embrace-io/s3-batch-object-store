@@ -135,7 +135,7 @@ func (f *TempFile[K]) Close() error {
 
 // MetaFileKey  returns the key to be used for the json meta file
 func (f *TempFile[K]) MetaFileKey() string {
-	return f.fileName + ".meta.json"
+	return f.fileName + ".meta.json.zst"
 }
 
 // readOnly logically closes the file by not accepting more appends, and returns the os.File used to upload the file to s3

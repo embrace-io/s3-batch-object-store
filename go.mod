@@ -2,11 +2,12 @@ module github.com/embrace-io/s3-batch-object-store
 
 go 1.24.0
 
-toolchain go1.24.1
+toolchain go1.25.4
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.40.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.92.1
+	github.com/klauspost/compress v1.18.1
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/onsi/gomega v1.38.2
 	go.uber.org/mock v0.6.0
