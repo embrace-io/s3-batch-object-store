@@ -10,7 +10,7 @@
 name: Dependency Review
 on:
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
