@@ -7,7 +7,7 @@ toolchain go1.25.4
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.1
-	github.com/klauspost/compress v1.18.2
+	github.com/klauspost/compress v1.18.3
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/onsi/gomega v1.39.0
 	go.uber.org/mock v0.6.0
