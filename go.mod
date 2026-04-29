@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.100.0
 	github.com/klauspost/compress v1.18.5
 	github.com/oklog/ulid/v2 v2.1.1
-	github.com/onsi/gomega v1.39.1
+	github.com/onsi/gomega v1.40.0
 	go.uber.org/mock v0.6.0
 )
 
@@ -24,6 +24,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.22 // indirect
 	github.com/aws/smithy-go v1.25.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
