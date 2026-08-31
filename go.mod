@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.107.3
 	github.com/klauspost/compress v1.19.2
 	github.com/oklog/ulid/v2 v2.1.2
-	github.com/onsi/gomega v1.42.1
+	github.com/onsi/gomega v1.43.0
 	go.uber.org/mock v0.6.0
 )
 
