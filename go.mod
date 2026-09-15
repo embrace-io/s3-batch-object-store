@@ -6,7 +6,7 @@ toolchain go1.25.4
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.47.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
 	github.com/klauspost/compress v1.20.0
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/onsi/gomega v1.43.0
